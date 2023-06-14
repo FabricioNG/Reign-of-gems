@@ -1,4 +1,4 @@
-export default class Win extends Phaser.Scene {
+export default class Gameover extends Phaser.Scene {
     constructor() {
       super("Gameover"); // Nombre de la escena, debe coincidir con el proporcionado en la configuración
     }

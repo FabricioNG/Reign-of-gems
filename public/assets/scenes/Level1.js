@@ -4,9 +4,8 @@ export default class Level1 extends Phaser.Scene {
   constructor() {
     // key of the scene
     // the key will be used to start the scene by other scenes
-    super("hello-world");
+    super("Level1");
   }
-
 
   preload() {
     // load assets
@@ -14,11 +13,16 @@ export default class Level1 extends Phaser.Scene {
     this.load.image("tileBackground", "./public/assets/images/sky.png");
     this.load.image("tilePlatform", "./public/assets/images/platform.png");
     this.load.image("salida", "./public/assets/images/salida.png");
-    this.load.image("star", "./public/assets/images/star.png");
+    this.load.image("gem", "./public/assets/images/gem.png");
     this.load.image("win", "./public/assets/images/win.png");
     this.load.image("gameover", "./public/assets/images/gameover.png");
+    this.load.image("spikes", "./public/assets/images/spike.png");
 
-
+    this.load.spritesheet("enemy", "./public/assets/images/enemy.png", {
+      frameWidth: 32,
+      frameHeight: 48,
+    });
+    
 
     this.load.spritesheet("dude", "./public/assets/images/dude.png", {
       frameWidth: 32,
@@ -27,7 +31,6 @@ export default class Level1 extends Phaser.Scene {
   }
 
   create() {
-   
     //  Our player animations, turning, walking left and walking right.
     this.anims.create({
       key: "left",
@@ -49,6 +52,23 @@ export default class Level1 extends Phaser.Scene {
       repeat: -1,
     });
 
+    //animaciones del enemigo
+
+    this.anims.create({
+      key: "enemy-left",
+      frames: this.anims.generateFrameNumbers("enemy", { start: 0, end: 1 }),
+      frameRate: 3,
+      repeat: -1,
+    });
+    
+    this.anims.create({
+      key: "enemy-right",
+      frames: this.anims.generateFrameNumbers("enemy", { start: 1, end: 0 }),
+      frameRate: 3,
+      repeat: -1,
+    });
+    
+
     const map = this.make.tilemap({ key: "map" });
 
     // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
@@ -58,16 +78,41 @@ export default class Level1 extends Phaser.Scene {
 
     // Parameters: layer name (or index) from Tiled, tileset, x, y
     const BackgroundLayer = map.createLayer("background", layBackground, 0, 0);
-    const platformLayer = map.createLayer(
-      "platform",
-      layPlatform,
-      0,
-      0
-    );
+    const platformLayer = map.createLayer("platform", layPlatform, 0, 0);
     const objectsLayer = map.getObjectLayer("objects");
 
     platformLayer.setCollisionByProperty({ colision: true });
 
+    //enemigo
+    const spawnPointEnemy = map.findObject(
+      "objects",
+      (obj) => obj.name === "enemy"
+    );
+    this.enemy = this.physics.add.sprite(
+      spawnPointEnemy.x,
+      spawnPointEnemy.y,
+      "enemy"
+    );
+    this.enemy.setCollideWorldBounds(true);
+
+    // Ajustar la hitbox del enemigo
+  this.enemy.body.setSize(35, 35);
+
+
+    const spawnPointspike = map.findObject(
+      "objects",
+      (obj) => obj.name === "spikes"
+    );
+    this.spike = this.physics.add.sprite(
+      spawnPointspike.x,
+      spawnPointspike.y,
+      "spikes"
+    );
+
+    this.physics.add.collider(this.spike, platformLayer);
+
+    // Agregar colisión entre el enemigo y la capa de plataformas
+    this.physics.add.collider(this.enemy, platformLayer);
 
     // crear el jugador
     // Find in the Object Layer, the name "dude" and get position
@@ -82,48 +127,83 @@ export default class Level1 extends Phaser.Scene {
     // Obtener la capa de fondo del mapa
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
-
     // Establecer los límites de la cámara según el tamaño de la capa de fondo
-    this.cameras.main.setBounds(0, 0, layBackground.width, layBackground.height);
+    this.cameras.main.setBounds(
+      0,
+      0,
+      layBackground.width,
+      layBackground.height
+    );
 
     // Hacer que la cámara siga al jugador
     this.cameras.main.startFollow(this.player);
-   
+
     //  Input Events
     this.cursors = this.input.keyboard.createCursorKeys();
 
     // Create empty group of starts
-    this.stars = this.physics.add.group();
+    this.gems = this.physics.add.group();
 
     // find object layer
-    // if type is "stars", add to stars group
+    // if type is "gems", add to gems group
     objectsLayer.objects.forEach((objData) => {
-
       const { x = 0, y = 0, name } = objData;
       switch (name) {
-        case "star": {
-          // add star to scene
-          const star = this.stars.create(x, y, "star");
+        case "gem": {
+          // add gem to scene
+          const gems = this.gems.create(x, y, "gem");
           break;
         }
       }
     });
 
     this.physics.add.collider(this.player, platformLayer);
-    this.physics.add.collider(this.stars, platformLayer);
+    this.physics.add.collider(this.gems, platformLayer);
     this.physics.add.collider(
       this.player,
-      this.stars,
-      this.recolectarEstrella,
+      this.gems,
+      this.recolectgem,
       null,
       this
     );
 
+    //agregar pantalla game over
+    this.physics.add.collider(
+      this.player,
+      this.spike,
+      this.gameOver,
+      null,
+      this
+    );
 
+    //agregar pantalla game over
+    this.physics.add.collider(
+      this.player,
+      this.enemy,
+      this.gameOver,
+      null,
+      this
+    );
+
+    //para pasar al siguiente nivel
+    this.physics.add.collider(
+      this.player,
+      this.gems,
+      this.collectGem,
+      null,
+      this
+    );
   }
 
-  cambiarNivel() {
- //   this.scene.start("nivel2"); // Cambia a la nueva escena (Nivel2)
+  collectGem(player, gem) {
+    gem.disableBody(true, true); // Desactiva la gema y la elimina del juego
+    if (this.gems.countActive(true) === 0) {
+      this.scene.start("Win"); // Cambia a la escena del nivel 2 cuando se hayan recolectado todas las gemas
+    }
+  }
+
+  gameOver() {
+    this.scene.start("Gameover"); // Cambia a la escena de Game Over
   }
 
   update() {
@@ -147,6 +227,33 @@ export default class Level1 extends Phaser.Scene {
 
     //jump
     if (this.cursors.up.isDown && this.player.body.blocked.down) {
-      this.player.setVelocityY(-330);   }
-}
+      this.player.setVelocityY(-170);
+    }
+
+    // Mover al enemigo de izquierda a derecha
+  if (this.enemy.body.velocity.x === 0) {
+    // Establecer la velocidad inicial del enemigo
+    this.enemy.setVelocityX(100); // Ajusta la velocidad según tus necesidades
+  }
+
+  // Cambiar la dirección del enemigo cuando alcanza los límites del mundo
+  if (this.enemy.body.blocked.right) {
+    this.enemy.setVelocityX(-100); // Cambia la dirección hacia la izquierda
+  } else if (this.enemy.body.blocked.left) {
+    this.enemy.setVelocityX(100); // Cambia la dirección hacia la derecha
+  }
+
+    if (this.enemy.body.velocity.x > 0) {
+      this.enemy.anims.play("enemy-right", true);
+    } else {
+      this.enemy.anims.play("enemy-left", true);
+    }
+    
+    if (this.enemy.body.blocked.right) {
+      this.enemy.setVelocityX(-160);
+    } else if (this.enemy.body.blocked.left) {
+      this.enemy.setVelocityX(160);
+    }
+    
+  }
 }
