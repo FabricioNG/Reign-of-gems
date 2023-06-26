@@ -2,18 +2,26 @@ export default class Gameover extends Phaser.Scene {
     constructor() {
       super("Gameover"); // Nombre de la escena, debe coincidir con el proporcionado en la configuración
     }
+
+    preload() {
+      this.load.image("menuboton", "./public/assets/images/menuboton.png")
+      this.load.image("gameover", "./public/assets/images/gameover.png")
+      this.load.image("reintentar", "./public/assets/images/reintentar.png")
+
+
+    }
   
     create() {
-      // Agregar la imagen de victoria
+      // Agregar la imagen
       this.add.image(400, 300, "gameover");
+
+
+      this.add.image(200, 500, "menuboton").setInteractive().on("pointerdown", () => this.scene.start("Menu"));
+
+      this.add.image(600, 500, "reintentar").setInteractive().on("pointerdown", () => this.scene.start("Level1"));
+
   
-      // Agregar eventos o acciones que ocurran en la escena de victoria
-      // Por ejemplo, puedes reiniciar el juego o pasar al siguiente nivel
-  
-      // Ejemplo: Reiniciar el juego al hacer clic en la pantalla
-      this.input.on("pointerup", () => {
-        this.scene.start("Juego"); // Reinicia la escena principal del juego (Juego en este ejemplo)
-      });
+      };
     }
-  }
+
   
