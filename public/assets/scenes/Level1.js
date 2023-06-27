@@ -1,5 +1,8 @@
 // URL to explain PHASER scene: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/scene/
 
+// Pause state
+    let isPaused = false;
+
 export default class Level1 extends Phaser.Scene {
   constructor() {
     // key of the scene
@@ -16,6 +19,8 @@ export default class Level1 extends Phaser.Scene {
     this.load.image("win", "./public/assets/images/win.png");
     this.load.image("gameover", "./public/assets/images/gameover.png");
     this.load.image("spikes", "./public/assets/images/spike.png");
+    this.load.image("blurry", "./public/assets/images/blurry.png");
+
 
     this.load.spritesheet("enemy", "./public/assets/images/enemy.png", {
       frameWidth: 32,
@@ -141,6 +146,41 @@ export default class Level1 extends Phaser.Scene {
     //  Input Events
     this.cursors = this.input.keyboard.createCursorKeys();
 
+    let blurryImage;
+
+    // Función para pausar el juego
+  function pauseGame() {
+    isPaused = true;
+    this.physics.pause();
+    this.anims.pauseAll();
+
+    // Agregar la imagen de desenfoque a la escena
+    blurryImage = this.add.image(0, 0, 'blurry').setOrigin(0);
+    blurryImage.setDisplaySize(this.cameras.main.width, this.cameras.main.height + 200);
+    blurryImage.setScrollFactor(0); // Para que la imagen no se mueva con la cámara
+    blurryImage.depth = 9999; // Asegurarse de que la imagen esté en la capa superior
+  }
+
+  // Función para reanudar el juego
+  function resumeGame() {
+    isPaused = false;
+    this.physics.resume();
+    this.anims.resumeAll();
+
+    // Quitar la imagen de desenfoque de la escena
+    blurryImage.destroy();
+  }
+
+  // Evento para pausar y reanudar el juego al presionar la tecla "P"
+  this.input.keyboard.on('keydown-P', function (event) {
+    if (event.repeat) return; // Evitar que el evento se repita si la tecla se mantiene presionada
+    if (!isPaused) {
+      pauseGame.call(this);
+    } else {
+      resumeGame.call(this);
+    }
+  }, this);
+
     // Create empty group of starts
     this.gems = this.physics.add.group();
 
@@ -255,6 +295,9 @@ export default class Level1 extends Phaser.Scene {
     } else if (this.enemy.body.blocked.left) {
       this.enemy.setVelocityX(160);
     }
+
+    if (isPaused) return; // Salir de la función de actualización si el juego está en pausa
+
     
   }
 }
