@@ -297,7 +297,5 @@ export default class Level1 extends Phaser.Scene {
     }
 
     if (isPaused) return; // Salir de la función de actualización si el juego está en pausa
-
-    
   }
 }
