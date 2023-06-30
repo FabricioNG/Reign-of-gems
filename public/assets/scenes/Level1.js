@@ -16,10 +16,11 @@ export default class Level1 extends Phaser.Scene {
     this.load.image("tileBackground", "./public/assets/images/sky.png");
     this.load.image("tilePlatform", "./public/assets/images/platform.png");
     this.load.image("gempurple", "./public/assets/images/gempurple.png");
-    this.load.image("win", "./public/assets/images/win.png");
     this.load.image("gameover", "./public/assets/images/gameover.png");
     this.load.image("spikes", "./public/assets/images/spike.png");
     this.load.image("blurry", "./public/assets/images/blurry.png");
+    this.load.image("interface1", "./public/assets/images/interface1.png");
+
 
 
     this.load.spritesheet("enemy", "./public/assets/images/enemy.png", {
@@ -143,6 +144,14 @@ export default class Level1 extends Phaser.Scene {
     // Hacer que la cámara siga al jugador
     this.cameras.main.startFollow(this.player);
 
+    // Crear la imagen en la esquina superior izquierda
+  this.playerFollower = this.add.image(10, 10, 'interface1');
+  this.playerFollower.setOrigin(0, 0);
+
+  // Ajustar la posición inicial de la imagen según la posición de la cámara
+  this.playerFollower.x += this.cameras.main.scrollX;
+  this.playerFollower.y += this.cameras.main.scrollY;
+  
     //  Input Events
     this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -297,5 +306,10 @@ export default class Level1 extends Phaser.Scene {
     }
 
     if (isPaused) return; // Salir de la función de actualización si el juego está en pausa
+
+    // Actualizar la posición de la imagen según la posición de la cámara en cada cuadro
+  this.playerFollower.x = Math.round(10 + this.cameras.main.scrollX);
+  this.playerFollower.y = Math.round(10 + this.cameras.main.scrollY);
+
   }
 }

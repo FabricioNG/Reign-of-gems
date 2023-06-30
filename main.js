@@ -54,7 +54,7 @@ const config = {
   // List of scenes to load
   // Only the first scene will be shown
   // Remember to import the scene before adding it to the list
-  scene: [Menu, Help, Level1, Gameover, Win, Level2, Wintwo, Gameover2, Level3, Winthree, Gameover3, Level4, Gameover4, Final],
+  scene: [Menu, Help, Level1, Gameover, Win, Level2, Wintwo, Gameover2, Level3, Winthree, Gameover3, Level4, Final, Gameover4],
 };
 
 // Create a new Phaser game instance

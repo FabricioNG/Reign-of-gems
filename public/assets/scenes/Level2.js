@@ -19,6 +19,8 @@ export default class Level2 extends Phaser.Scene {
     this.load.image("gemblue", "./public/assets/images/gemblue.png");
     this.load.image("gameover", "./public/assets/images/gameover.png");
     this.load.image("spikes", "./public/assets/images/spike.png");
+    this.load.image("interface2", "./public/assets/images/interface2.png");
+
 
     this.load.spritesheet("enemy", "./public/assets/images/enemy.png", {
       frameWidth: 32,
@@ -140,6 +142,14 @@ export default class Level2 extends Phaser.Scene {
 
     // Hacer que la cámara siga al jugador
     this.cameras.main.startFollow(this.player);
+
+    // Crear la imagen en la esquina superior izquierda
+  this.playerFollower = this.add.image(10, 10, 'interface2');
+  this.playerFollower.setOrigin(0, 0);
+
+  // Ajustar la posición inicial de la imagen según la posición de la cámara
+  this.playerFollower.x += this.cameras.main.scrollX;
+  this.playerFollower.y += this.cameras.main.scrollY;
 
     //  Input Events
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -326,5 +336,9 @@ export default class Level2 extends Phaser.Scene {
       this.enemy.setVelocityX(160);
     }
     if (isPaused) return;
+
+    // Actualizar la posición de la imagen según la posición de la cámara en cada cuadro
+  this.playerFollower.x = Math.round(10 + this.cameras.main.scrollX);
+  this.playerFollower.y = Math.round(10 + this.cameras.main.scrollY);
   }
 }

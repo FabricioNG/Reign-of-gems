@@ -18,6 +18,8 @@ export default class Level4 extends Phaser.Scene {
     this.load.image("crown", "./public/assets/images/crown.png");
     this.load.image("gameover", "./public/assets/images/gameover.png");
     this.load.image("spikes", "./public/assets/images/spike.png");
+    this.load.image("interface4", "./public/assets/images/interface4.png");
+
 
    // this.load.spritesheet("enemy", "./public/assets/images/enemy.png", {
      // frameWidth: 32,
@@ -140,6 +142,14 @@ export default class Level4 extends Phaser.Scene {
     // Hacer que la cámara siga al jugador
     this.cameras.main.startFollow(this.player);
 
+    // Crear la imagen en la esquina superior izquierda
+  this.playerFollower = this.add.image(10, 10, 'interface4');
+  this.playerFollower.setOrigin(0, 0);
+
+  // Ajustar la posición inicial de la imagen según la posición de la cámara
+  this.playerFollower.x += this.cameras.main.scrollX;
+  this.playerFollower.y += this.cameras.main.scrollY;
+
     //  Input Events
     this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -188,9 +198,9 @@ export default class Level4 extends Phaser.Scene {
       const { x = 0, y = 0, name } = objData;
       switch (name) {
         case "crown": {
-          // add gem to scene
+          // add crown to scene
           const gems = this.gems.create(x, y, "crown");
-          gems.body.immovable = true; // Make the gem immovable
+          gems.body.immovable = true; // Make the crown immovable
           break;
         }
       }
@@ -341,7 +351,7 @@ this.tweens.add({
     
     this.physics.add.collider(this.player, platformLayer);
     this.physics.add.collider(this.gems, platformLayer);
-    this.physics.add.collider(
+    this.physics.add.overlap(
       this.player,
       this.gems,
       this.recolectgem,
@@ -379,9 +389,9 @@ this.tweens.add({
   }
 
   collectGem(player, gem) {
-    gem.disableBody(true, true); // Desactiva la gema y la elimina del juego
+    gem.disableBody(true, true); // Desactiva la corona y la elimina del juego
     if (this.gems.countActive(true) === 0) {
-      this.scene.start("Final"); // Cambia a la escena del nivel 2 cuando se hayan recolectado todas las gemas
+      this.scene.start("Final"); // Cambia a la escena del nivel 2 cuando se hayan recolectado la corona
     }
   }
 
@@ -438,5 +448,9 @@ this.tweens.add({
      // this.enemy.setVelocityX(160);
     //}
     if (isPaused) return; 
+
+    // Actualizar la posición de la imagen según la posición de la cámara en cada cuadro
+  this.playerFollower.x = Math.round(10 + this.cameras.main.scrollX);
+  this.playerFollower.y = Math.round(10 + this.cameras.main.scrollY);
   }
 }
