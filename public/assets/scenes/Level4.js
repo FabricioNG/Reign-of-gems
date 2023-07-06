@@ -34,6 +34,16 @@ export default class Level4 extends Phaser.Scene {
   }
 
   create() {
+
+    // Crear objeto de audio y asignarlo a una variable de la escena
+  this.music = this.sound.add("levelmusic");
+
+  // Configurar la música para que se reproduzca en bucle
+  this.music.setLoop(true);
+
+  // Reproducir la música
+  this.music.play();
+
     //  Our player animations, turning, walking left and walking right.
     this.anims.create({
       key: "left",
@@ -161,6 +171,8 @@ export default class Level4 extends Phaser.Scene {
     isPaused = true;
     this.physics.pause();
     this.anims.pauseAll();
+    this.music.pause(); 
+
 
     // Agregar la imagen de desenfoque a la escena
     blurryImage = this.add.image(0, 0, 'blurry').setOrigin(0);
@@ -174,6 +186,7 @@ export default class Level4 extends Phaser.Scene {
     isPaused = false;
     this.physics.resume();
     this.anims.resumeAll();
+    this.music.resume();
 
     // Quitar la imagen de desenfoque de la escena
     blurryImage.destroy();
@@ -391,12 +404,16 @@ this.tweens.add({
   collectGem(player, gem) {
     gem.disableBody(true, true); // Desactiva la corona y la elimina del juego
     if (this.gems.countActive(true) === 0) {
-      this.scene.start("Final"); // Cambia a la escena del nivel 2 cuando se hayan recolectado la corona
+      this.scene.start("Final"); // Cambia a la cinematica final cuando se haya recolectado la corona
     }
+    // Detener la música
+  this.music.stop();
   }
 
   gameOver() {
     this.scene.start("Gameover4"); // Cambia a la escena de Game Over
+    this.music.stop();
+
   }
 
   update() {
@@ -426,7 +443,7 @@ this.tweens.add({
     // Mover al enemigo de izquierda a derecha
  // if (this.enemy.body.velocity.x === 0) {
     // Establecer la velocidad inicial del enemigo
-   // this.enemy.setVelocityX(100); // Ajusta la velocidad según tus necesidades
+   // this.enemy.setVelocityX(100); 
   //}
 
   // Cambiar la dirección del enemigo cuando alcanza los límites del mundo

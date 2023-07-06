@@ -35,6 +35,16 @@ export default class Level2 extends Phaser.Scene {
   }
 
   create() {
+
+    // Crear objeto de audio y asignarlo a una variable de la escena
+  this.music = this.sound.add("levelmusic");
+
+  // Configurar la música para que se reproduzca en bucle
+  this.music.setLoop(true);
+
+  // Reproducir la música
+  this.music.play();
+
     //  Our player animations, turning, walking left and walking right.
     this.anims.create({
       key: "left",
@@ -164,6 +174,8 @@ export default class Level2 extends Phaser.Scene {
     isPaused = true;
     this.physics.pause();
     this.anims.pauseAll();
+    this.music.pause();
+
 
     // Agregar la imagen de desenfoque a la escena
     blurryImage = this.add.image(0, 0, 'blurry').setOrigin(0);
@@ -177,6 +189,7 @@ export default class Level2 extends Phaser.Scene {
     isPaused = false;
     this.physics.resume();
     this.anims.resumeAll();
+    this.music.resume();
 
     // Quitar la imagen de desenfoque de la escena
     blurryImage.destroy();
@@ -239,7 +252,7 @@ export default class Level2 extends Phaser.Scene {
 
     this.physics.add.collider(this.player, platformLayer);
     this.physics.add.collider(this.gems, platformLayer);
-    this.physics.add.collider(
+    this.physics.add.overlap(
       this.player,
       this.gems,
       this.recolectgem,
@@ -279,12 +292,16 @@ export default class Level2 extends Phaser.Scene {
   collectGem(player, gem) {
     gem.disableBody(true, true); // Desactiva la gema y la elimina del juego
     if (this.gems.countActive(true) === 0) {
-      this.scene.start("Wintwo"); // Cambia a la escena del nivel 2 cuando se hayan recolectado todas las gemas
+      this.scene.start("Wintwo"); // Cambia a la escena del nivel 3 cuando se hayan recolectado todas las gemas
     }
+    // Detener la música
+  this.music.stop();
   }
 
   gameOver() {
     this.scene.start("Gameover2"); // Cambia a la escena de Game Over
+    this.music.stop();
+
   }
 
   update() {
@@ -314,7 +331,7 @@ export default class Level2 extends Phaser.Scene {
     // Mover al enemigo de izquierda a derecha
   if (this.enemy.body.velocity.x === 0) {
     // Establecer la velocidad inicial del enemigo
-    this.enemy.setVelocityX(100); // Ajusta la velocidad según tus necesidades
+    this.enemy.setVelocityX(100); 
   }
 
   // Cambiar la dirección del enemigo cuando alcanza los límites del mundo

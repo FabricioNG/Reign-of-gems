@@ -1,7 +1,7 @@
 
 export default class Help extends Phaser.Scene {
     constructor() {
-      super("Help"); // Nombre de la escena, debe coincidir con el proporcionado en la configuración
+      super("Help"); 
     }
 
     preload() {
