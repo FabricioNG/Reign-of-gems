@@ -148,8 +148,8 @@ export default class Level1 extends Phaser.Scene {
     this.cameras.main.setBounds(
       0,
       0,
-      layBackground.width,
-      layBackground.height
+      BackgroundLayer.width,
+      BackgroundLayer.height
     );
 
     // Hacer que la cámara siga al jugador
